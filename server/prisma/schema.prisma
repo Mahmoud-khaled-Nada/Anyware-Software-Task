@@ -1,0 +1,53 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+// the relationship between the users and announcement is not required
+model users {
+  id            String         @id @default(auto()) @map("_id") @db.ObjectId
+  name          String
+  email         String         @unique
+  password      String
+  announcements announcement[]
+  quizzes       quizzes[]
+}
+
+model announcement {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  body      String
+  users     users?   @relation(fields: [userId], references: [id])
+  userId    String?  @db.ObjectId
+  createdAt DateTime @default(now())
+}
+
+model quizzes {
+  id              String       @id @default(auto()) @map("_id") @db.ObjectId
+  quiz_type       String       @default("quiz")
+  title           String
+  topic           String
+  quiz            String
+  soltion_correct String
+  soltion_one     String
+  soltion_two     String
+  soltion_three   String
+  active          Boolean      @default(true)
+  users           users        @relation(fields: [userId], references: [id])
+  userId          String       @db.ObjectId
+  createdAt       DateTime     @default(now())
+  quiz_solve      quiz_solve[]
+}
+
+model quiz_solve {
+  id            String  @id @default(auto()) @map("_id") @db.ObjectId
+  student_solve String
+  quizzes       quizzes @relation(fields: [quizId], references: [id])
+  quizId        String  @db.ObjectId
+}
